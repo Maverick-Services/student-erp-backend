@@ -71,65 +71,7 @@ const getTeamById = async (req, res) => {
 
 
 
-const createTeam = async (req, res) => {
-    const { teamLeader, teamName, description, members, tasks } = req.body;
 
-    try {
-        // **Extract Admin Email from Token**
-        if (!req.user || !req.user.email) {
-            return res.status(401).json({
-                success:false,
-                 message: "Unauthorized: Admin email not found in token"
-                 });
-        }
-        const adminEmail = req.user.email;
-
-        // Validate required fields
-        if (!teamLeader || !teamName) {
-            return res.status(400).json({
-                success:false,
-                 message: "Team Leader and Team Name are required" 
-                });
-        }
-
-        // Generate User ID & Password
-        const userId = `${teamName.toLowerCase().replace(/\s+/g, "_")}_${Date.now()}`;
-        const password = generatePassword();
-        const hashedPassword = await bcrypt.hash(password, 10);
-        // Create and Save Team
-        const team = new Team({ teamLeader, teamName, description, members, tasks, userName: userId, password:hashedPassword });
-        await team.save();
-
-        // **Setup Nodemailer with Gmail (Using OAuth2)**
-        const transporter = nodemailer.createTransport({
-            service: "gmail",
-            auth: {
-                user: process.env.EMAIL, // Your Gmail email
-                pass: process.env.PASSWORD, // Use an "App Password" (DO NOT use your real password)
-            },
-        });
-
-        const mailOptions = {
-            from: process.env.EMAIL,
-            to: adminEmail,
-            subject: "New Team Created - Access Details",
-            text: `Hello Admin,\n\nA new team has been created.\n\nTeam Name: ${teamName}\nUser ID: ${userId}\nPassword: ${password}\n\nPlease use these credentials to access the team.`,
-        };
-
-        await transporter.sendMail(mailOptions);
-
-        res.status(201).json({ 
-            success:true,
-            message: "Team created successfully. Email sent to Admin.",
-             data:team });
-    } catch (error) {
-        console.error("Error creating team:", error);
-        res.status(500).json({ 
-            success:false,
-            message: "Internal Server Error" 
-        });
-    }
-};
 
 
 // const updateTeam = async (req, res) => {
@@ -152,18 +94,83 @@ const createTeam = async (req, res) => {
 //         res.status(500).json({ message: "Internal Server Error", error: error.message });
 //     }
 // };
+const createTeam = async (req, res) => {
+    const { teamLeader, teamName, description, members, tasks } = req.body;
+
+    try {
+        // **Extract Admin Email from Token**
+        if (!req.user || !req.user.email) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized: Admin email not found in token"
+            });
+        }
+        const adminEmail = req.user.email;
+
+        // Validate required fields
+        // if (!teamLeader || !teamName) {
+        //     return res.status(400).json({
+        //         success: false,
+        //         message: "Team Leader and Team Name are required"
+        //     });
+        // }
+
+        // Generate User ID & Password
+        const userId = `${teamName.toLowerCase().replace(/\s+/g, "_")}_${Date.now()}`;
+        const password = generatePassword();
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Create and Save Team
+        const team = new Team({
+            teamLeader,
+            teamName,
+            description,
+            members,
+            tasks,
+            userName: userId,
+            password: hashedPassword
+        });
+        await team.save();
+
+        // ✅ **Setup Nodemailer with Gmail (Using OAuth2)**
+        const transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: process.env.EMAIL, // ✅ Your Gmail email
+                pass: process.env.PASSWORD, // ✅ Use an "App Password"
+            },
+        });
+
+        const mailOptions = {
+            from: process.env.EMAIL,
+            to: adminEmail,
+            subject: "New Team Created - Access Details",
+            text: `Hello Admin,\n\nA new team has been created.\n\nTeam Name: ${teamName}\nUser ID: ${userId}\nPassword: ${password}\n\nPlease use these credentials to access the team.`,
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        res.status(201).json({
+            success: true,
+            message: "Team created successfully. Email sent to Admin.",
+            data: team
+        });
+    } catch (error) {
+        console.error("Error creating team:", error);
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+    }
+};
+
 const updateTeam = async (req, res) => {
     try {
-        const { teamLeader, members } = req.body;
-        const teamId = req.body.id;
+        const { id, teamLeader, members } = req.body;
 
-        // Find the existing team
-        const existingTeam = await Team.findById(teamId);
+        const existingTeam = await Team.findById(id);
         if (!existingTeam) {
-            return res.status(404).json({ 
-                success:false,
-                message: "Team not found" 
-            });
+            return res.status(404).json({ success: false, message: "Team not found" });
         }
 
         // If teamLeader is updated, ensure they are not leading another team
@@ -177,14 +184,19 @@ const updateTeam = async (req, res) => {
         // If members are updated, ensure they are not part of multiple teams
         if (members && members.length > 0) {
             await Team.updateMany(
-                { _id: { $ne: teamId }, members: { $in: members } },
+                { _id: { $ne: id }, members: { $in: members } },
                 { $pull: { members: { $in: members } } }
+            );
+
+            // **Automatically assign team to its members**
+            await User.updateMany(
+                { _id: { $in: members } },
+                { team: id }
             );
         }
 
-        // Update team details
         const updatedTeam = await Team.findByIdAndUpdate(
-            teamId,
+            id,
             req.body,
             { new: true, runValidators: true }
         )
@@ -193,18 +205,13 @@ const updateTeam = async (req, res) => {
         .populate('tasks', 'title description')
         .exec();
 
-        res.status(200).json({ 
-            success:true,
-            message: "Team updated successfully",
-            data:updatedTeam });
+        res.status(200).json({ success: true, message: "Team updated successfully", data: updatedTeam });
     } catch (error) {
         console.error("Error updating team:", error);
-        res.status(500).json({ 
-            success:false,
-            message: "Internal Server Error", 
-            error: error.message });
+        res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
     }
 };
+
 
 const deleteTeam = async (req, res) => {
     try {
