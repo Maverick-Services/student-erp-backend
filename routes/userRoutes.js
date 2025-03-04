@@ -5,7 +5,7 @@ const router = express.Router();
 const User = require('../models/User-model');
 const { authMiddleware, isAdmin } = require('../middleware/authMiddleware');
 
-router.get('/', getUsers);
+router.get('/getUsers', getUsers);
 
 // ✅ This route works fine
 router.get('/kamm', authMiddleware , async (req, res) => {
