@@ -14,7 +14,10 @@ router.post('/register', async (req, res) => {
         // Check if user already exists
         let user = await User.findOne({ email });
         if (user) {
-            return res.status(400).json({ message: "User already exists" });
+            return res.status(400).json({
+                success:false,
+                 message: "User already exists" 
+                });
         }
 
         // Hash the password
@@ -34,10 +37,14 @@ router.post('/register', async (req, res) => {
         // Generate JWT Token
         const token = jwt.sign({ id: user._id, role: user.role ,email: user.email}, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.status(201).json({ message: "User registered successfully", token });
+        res.status(201).json({
+            success:true,
+             message: "User registered successfully", data:token });
 
     } catch (error) {
-        res.status(500).json({ message: "Server Error", error });
+        res.status(500).json({ 
+            success:false,
+            message: "Server Error", error });
     }
 });
 
@@ -49,26 +56,41 @@ router.post('/login', async (req, res) => {
         // Check if user exists
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ message: "Invalid Email or Password" });
+            return res.status(400).json({ 
+                success:false,
+                message: "Invalid Email or Password"
+             });
         }
 
         // Check password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ message: "Invalid Email or Password" });
+            return res.status(400).json({ 
+                success:false,
+                message: "Invalid Email or Password" 
+            });
         }
 
         // Generate JWT Token
         const token = jwt.sign({ id: user._id, role: user.role , email: user.email}, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.json({ message: "Login successful", token });
+        res.json({ 
+            success:true,
+            message: "Login successful", data:token 
+        });
 
     } catch (error) {
-        res.status(500).json({ message: "Server Error", error });
+        res.status(500).json({ 
+            success:false,
+            message: "Server Error", 
+            error });
     }
 });
 router.get('/profile', authMiddleware, async (req, res) => {
     const user = await User.findById(req.user.id).select('-password');
-    res.json(user);
+    res.json({
+        success:true,
+        message:"Profile Fetched Successfully",
+        data:user});
 });
 module.exports = router;

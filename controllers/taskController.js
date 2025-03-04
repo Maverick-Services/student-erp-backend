@@ -6,9 +6,14 @@ const getTasks = async (req, res) => {
         // Populate assigned users and steps
         const tasks = await Task.find().populate('assignedTo').populate('steps');
         
-        res.json({ message: "Tasks retrieved successfully", tasks });
+        res.json({
+            success:true,
+             message: "Tasks retrieved successfully", data:tasks });
     } catch (error) {
-        res.status(500).json({ message: "Internal Server Error", error: error.message });
+        res.status(500).json({
+            success:false,
+             message: "Internal Server Error",
+              error: error.message });
     }
 };
 
@@ -18,19 +23,28 @@ const getTaskById = async (req, res) => {
 
         // Check if ID is a valid MongoDB ObjectId
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ message: "Invalid Task ID" });
+            return res.status(400).json({
+                success:false,
+                 message: "Invalid Task ID" });
         }
 
         // Find task by ID and populate assignedTo & steps
         const task = await Task.findById(id).populate('assignedTo').populate('steps');
 
         if (!task) {
-            return res.status(404).json({ message: 'Task not found' });
+            return res.status(404).json({
+                success:false,
+                 message: 'Task not found' });
         }
 
-        res.json({ message: "Task retrieved successfully", task });
+        res.status(200).json({
+            success:true,
+            message: "Task retrieved successfully", task });
     } catch (error) {
-        res.status(500).json({ message: "Internal Server Error", error: error.message });
+        res.status(500).json({ 
+            success:false,
+            message: "Internal Server Error", 
+            error: error.message });
     }
 };
 
@@ -44,7 +58,9 @@ const createTask = async (req, res) => {
 
         // Validate required fields
         if (!name || !clientName || !deadline) {
-            return res.status(400).json({ message: "Name, Client Name, and Deadline are required." });
+            return res.status(400).json({
+                success:false,
+                 message: "Name, Client Name, and Deadline are required." });
         }
 
         //check if team exist
@@ -74,9 +90,14 @@ const createTask = async (req, res) => {
 
         //push task id in team tasks array
 
-        res.status(201).json({ message: "Task created successfully", task });
+        res.status(201).json({ 
+            success:true,
+            message: "Task created successfully", data:task });
     } catch (error) {
-        res.status(500).json({ message: "Internal Server Error", error: error.message });
+        res.status(500).json({
+            success:false,
+             message: "Internal Server Error",
+              error: error.message });
     }
 };
 
@@ -86,25 +107,37 @@ const updateTask = async (req, res) => {
 
         // Check if the ID is a valid MongoDB ObjectId
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ message: "Invalid Task ID" });
+            return res.status(400).json({
+                success:false,
+                 message: "Invalid Task ID" 
+                });
         }
 
         // Ensure required fields are not empty (optional: you can customize this further)
         const { name, clientName, deadline } = req.body;
         if (!name || !clientName || !deadline) {
-            return res.status(400).json({ message: "Required fields: name, clientName, and deadline" });
+            return res.status(400).json({ 
+                success:false,
+                message: "Required fields: name, clientName, and deadline" });
         }
 
         // Find and update the task
         const task = await Task.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
 
         if (!task) {
-            return res.status(404).json({ message: "Task not found" });
+            return res.status(404).json({ 
+                success:false,
+                message: "Task not found" });
         }
 
-        res.json({ message: "Task updated successfully", task });
+        res.json({
+            success:true,
+             message: "Task updated successfully", data:task });
     } catch (error) {
-        res.status(500).json({ message: "Internal Server Error", error: error.message });
+        res.status(500).json({ 
+            success:false,
+            message: "Internal Server Error", 
+            error: error.message });
     }
 };
 
@@ -112,10 +145,17 @@ const updateTask = async (req, res) => {
 const deleteTask = async (req, res) => {
     try {
         const task = await Task.findByIdAndDelete(req.body.id);
-        if (!task) return res.status(404).json({ message: 'Task not found' });
-        res.json({ message: 'Task deleted successfully' });
+        if (!task) return res.status(404).json({ 
+            success:false,
+            message: 'Task not found' });
+        res.json({
+            success:true,
+             message: 'Task deleted successfully' 
+            });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({
+            success:false,
+             message: error.message });
     }
 };
 

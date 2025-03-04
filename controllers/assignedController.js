@@ -8,7 +8,10 @@ const getAssigned = async (req, res) => {
         const assigned = await Assigned.find().populate('task user');
         res.json(assigned);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ 
+            success:false,
+            message: error.message 
+        });
     }
 };
 
@@ -18,7 +21,10 @@ const getAssignedById = async (req, res) => {
         if (!assigned) return res.status(404).json({ message: 'Assigned record not found' });
         res.json(assigned);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({
+            message:false,
+             message: error.message 
+            });
     }
 };
 

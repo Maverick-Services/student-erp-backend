@@ -29,7 +29,7 @@ router.post("/", async (req, res) => {
                 message: "Invalid credentials"
              });
         }
-        const token = jwt.sign({ userId: team.userName }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        const token = jwt.sign({ id:team?._id, userId: team.userName }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
         team.password = undefined;
 

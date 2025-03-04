@@ -4,7 +4,10 @@ authMiddleware = (req, res, next) => {
     const token = req.header("Authorization");
 
     if (!token) {
-        return res.status(401).json({ message: "Access denied. No token provided." });
+        return res.status(401).json({
+            success:false,
+             message: "Access denied. No token provided." 
+            });
     }
 
     try {
@@ -12,7 +15,10 @@ authMiddleware = (req, res, next) => {
         req.user = decoded;
         next();
     } catch (error) {
-        res.status(401).json({ message: "Invalid token" });
+        res.status(401).json({ 
+            success:false,
+            message: "Invalid token" 
+        });
     }
 };
 
