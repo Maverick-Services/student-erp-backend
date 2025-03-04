@@ -2,8 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { getUsers, getUserById, createUser, updateUser, deleteUser } = require('../controllers/userController');
 const router = express.Router();
-const authMiddleware = require('../middleware/authMiddleware');
 const User = require('../models/User-model');
+const { authMiddleware, isAdmin } = require('../middleware/authMiddleware');
 
 router.get('/', getUsers);
 
@@ -14,15 +14,10 @@ router.get('/kamm', authMiddleware , async (req, res) => {
 })
 
 // ✅ Validate ID before calling getUserById
-router.get('/:id', (req, res, next) => {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-        return res.status(400).json({ message: "Invalid User ID" });
-    }
-    next();
-}, getUserById);
+router.post('/getUserById', getUserById);
 
-router.post('/', createUser);
-router.put('/:id', updateUser);
-router.delete('/:id', deleteUser);
+router.post('/createUser', authMiddleware, isAdmin, createUser);
+router.put('/updateUser',authMiddleware, isAdmin, updateUser);
+router.delete('/deleteUser', deleteUser);
 
 module.exports = router;

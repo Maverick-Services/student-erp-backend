@@ -27,7 +27,7 @@ const getTeams = async (req, res) => {
 
 const getTeamById = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id } = req.body;
 
         if (!id.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({ message: "Invalid team ID format" });
@@ -122,7 +122,7 @@ const createTeam = async (req, res) => {
 const updateTeam = async (req, res) => {
     try {
         const { teamLeader, members } = req.body;
-        const teamId = req.params.id;
+        const teamId = req.body.id;
 
         // Find the existing team
         const existingTeam = await Team.findById(teamId);
@@ -166,7 +166,7 @@ const updateTeam = async (req, res) => {
 
 const deleteTeam = async (req, res) => {
     try {
-        const team = await Team.findByIdAndDelete(req.params.id);
+        const team = await Team.findByIdAndDelete(req.body.id);
         if (!team) return res.status(404).json({ message: 'Team not found' });
         res.json({ message: 'Team deleted successfully' });
     } catch (error) {

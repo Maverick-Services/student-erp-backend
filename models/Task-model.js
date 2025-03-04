@@ -12,9 +12,9 @@ const taskSchema = new mongoose.Schema({
         type: Date,
         default: Date.now 
     }, // Default to current date
-    assignedTo: [{ 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Assigned' }], // Array of Assigned IDs
+    // assignedTo: [{ 
+    //     type: mongoose.Schema.Types.ObjectId, 
+    //     ref: 'Assigned' }], // Array of Assigned IDs
     steps: [{ 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Step' 

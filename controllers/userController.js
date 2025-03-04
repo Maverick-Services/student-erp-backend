@@ -39,7 +39,7 @@ const getUsers = async (req, res) => {
 // Get User by ID
 const getUserById = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id } = req.body;
 
         // Validate if ID is a valid MongoDB ObjectId
         if (!id.match(/^[0-9a-fA-F]{24}$/)) {
@@ -93,7 +93,7 @@ const getUserById = async (req, res) => {
 //     }
 // };
 const createUser = async (req, res) => {
-    const { name, email, role, team, teamLeader, tasks } = req.body;
+    const { name, email, role, team, phoneNo,teamLeader, tasks } = req.body;
 
     try {
         // Check if email already exists
@@ -113,6 +113,7 @@ const createUser = async (req, res) => {
             name,
             email,
             password: hashedPassword,
+            phoneNo,
             role,
             team,
             teamLeader,
@@ -139,8 +140,8 @@ const createUser = async (req, res) => {
 // Update User
 const updateUser = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { name, email, password, role, team, teamLeader, tasks } = req.body;
+        const { id } = req.body;
+        const { name, email, phoneNo ,password, role, team, teamLeader, tasks } = req.body;
 
         // Validate if ID is a valid MongoDB ObjectId
         if (!id.match(/^[0-9a-fA-F]{24}$/)) {
@@ -162,7 +163,7 @@ const updateUser = async (req, res) => {
         // Update user details
         user = await User.findByIdAndUpdate(
             id,
-            { name, email, password: hashedPassword, role, team, teamLeader, tasks },
+            { name, email, password: hashedPassword, role, team, phoneNo ,teamLeader, tasks },
             { new: true, runValidators: true }
         ).populate("team tasks");
 
@@ -192,7 +193,7 @@ const updateUser = async (req, res) => {
 // Delete User
 const deleteUser = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id } = req.body;
 
         // Validate if ID is a valid MongoDB ObjectId
         if (!id.match(/^[0-9a-fA-F]{24}$/)) {

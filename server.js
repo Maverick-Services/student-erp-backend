@@ -9,7 +9,7 @@ const assignedRoutes = require('./routes/assignedRoutes');
 const stepRoutes = require('./routes/stepRoutes');
 const requirementRoutes = require('./routes/requirementRoutes');
 const authRoutes = require('./routes/authRoutes');
-
+const authTeamRoutes=require('./routes/authTeamRoutes')
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -32,7 +32,7 @@ app.use(cors({
 }));
 // Middleware
 app.use(express.json()); // To parse JSON requests
-
+app.use(express.urlencoded({ extended: true }));
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -40,6 +40,7 @@ app.use('/api/teams', teamRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/assigned', assignedRoutes);
 app.use('/api/steps', stepRoutes);
+app.use("/api/teams/login",authTeamRoutes)
 app.use('/api/requirements', requirementRoutes);
 
 // Root Route

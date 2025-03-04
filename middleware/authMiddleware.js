@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-const authMiddleware = (req, res, next) => {
+exports.authMiddleware = (req, res, next) => {
     const authHeader = req.header("Authorization");
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -15,9 +15,9 @@ const authMiddleware = (req, res, next) => {
         req.user = decoded; // Attach user data to request
         console.log(req.user)
         // Ensure user has admin role
-        if (req.user.role !== "admin") {
-            return res.status(403).json({ message: "Access Denied! Only Admins Can Perform This Action." });
-        }
+        // if (req.user.role !== "admin") {
+        //     return res.status(403).json({ message: "Access Denied! Only Admins Can Perform This Action." });
+        // }
 
         next();
     } catch (error) {
@@ -25,4 +25,15 @@ const authMiddleware = (req, res, next) => {
     }
 };
 
-module.exports = authMiddleware;
+exports.isAdmin = (req,res)=>{
+    try {
+        if (req.user.role !== "admin") {
+            return res.status(403).json({ message: "Access Denied! Only Admins Can Perform This Action." });
+        }
+        next()
+    } catch (error) {
+        res.status(500).json({
+            success:false,
+            message:"This is the protected route for Admin's"})
+    }
+}

@@ -4,7 +4,8 @@ const { getRequirements, getRequirementById, createRequirement, updateRequiremen
 const router = express.Router();
 
 router.get('/', getRequirements);
-router.get('/:id', getRequirementById);
+// router.get('/:id', getRequirementById);
+router.post('/getRequirementById',getRequirementById)
 router.post('/', createRequirement);
 router.put('/:id', updateRequirement);
 router.delete('/:id', deleteRequirement);

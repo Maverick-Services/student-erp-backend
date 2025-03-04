@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const stepSchema = new mongoose.Schema({
+    taskId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Task', 
+        required: true 
+    },
     name: {
         type: String,
         required: true
@@ -17,11 +22,15 @@ const stepSchema = new mongoose.Schema({
         enum: ['completed', 'pending'],
         default: 'pending'
      },
-    // Reference to Requirement model
-    requirements: [{ 
+     //refrence to Assigned model
+     assignedTo: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Requirement', 
-        required: true }], 
+        ref: 'Assigned' },
+    // Reference to Requirement model
+    // requirements: [{ 
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: 'Requirement', 
+    //     required: true }], 
 }, { timestamps: true });
 
 module.exports = mongoose.model('Step', stepSchema);
