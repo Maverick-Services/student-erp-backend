@@ -17,21 +17,32 @@ router.post("/", async (req, res) => {
         .populate('members')
         .populate('tasks').exec();
         if (!team) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({
+                success:false,
+                 message: "User not found" 
+                });
         }
         const isMatch = await bcrypt.compare(password, team.password);
         if (!isMatch) {
-            return res.status(400).json({ message: "Invalid credentials" });
+            return res.status(400).json({ 
+                success:false,
+                message: "Invalid credentials"
+             });
         }
         const token = jwt.sign({ userId: team.userName }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
         team.password = undefined;
 
-        res.json({ message: "Login successful", 
+        res.json({ 
+            success:true,
+            message: "Login successful", 
             data:{token,team} });
     } catch (error) {
         console.error("Login error:", error);
-        res.status(500).json({ message: "Internal Server Error" });
+        res.status(500).json({ 
+            success:false,
+            message: "Internal Server Error" 
+        });
     }
 });
 
