@@ -16,7 +16,7 @@ exports.authMiddleware = (req, res, next) => {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded; // Attach user data to request
-        console.log(req.user)
+        // console.log(req.user)
         // Ensure user has admin role
         // if (req.user.role !== "admin") {
         //     return res.status(403).json({ message: "Access Denied! Only Admins Can Perform This Action." });
@@ -31,9 +31,10 @@ exports.authMiddleware = (req, res, next) => {
     }
 };
 
-exports.isAdmin = (req,res)=>{
+exports.isAdmin = (req,res,next)=>{
     try {
         if (req.user.role !== "admin") {
+            console.log("Is Admin",req.user.role);
             return res.status(403).json({
                 success:false,
                  message: "Access Denied! Only Admins Can Perform This Action." 

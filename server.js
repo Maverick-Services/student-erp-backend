@@ -19,7 +19,7 @@ connectDB();
 app.use(cors());
 
 
-const allowedOrigins = ["http://localhost:3000", "https://yourfrontenddomain.com"];
+// const allowedOrigins = ["http://localhost:3000", "https://yourfrontenddomain.com"];
 app.use(cors({
     origin: "*",
     credentials: true,
@@ -34,7 +34,7 @@ app.use('/api/teams', teamRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/assigned', assignedRoutes);
 app.use('/api/steps', stepRoutes);
-app.use("/api/teams/login",authTeamRoutes)
+app.use("/api/teams/login",authTeamRoutes);
 app.use('/api/requirements', requirementRoutes);
 
 // Root Route

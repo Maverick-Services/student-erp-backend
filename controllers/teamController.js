@@ -230,13 +230,18 @@ const deleteTeam = async (req, res) => {
 const getTeamMembers = async (req, res) => {
     try {
         const teamId = req.user.id;
+        console.log(teamId);
         // Fetch all users and populate related fields
         const users = await User.find({
             team: teamId
-        }).populate('team tasks');
+        })
+        // .populate('team tasks');
+
+        console.log(users)
 
         // Check if users exist
-        if (!users || users.length === 0) {
+        if (!users) {
+            console.log(users)
             return res.status(404).json({ 
                 success:false,
                 message: "No users found"
