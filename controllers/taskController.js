@@ -58,7 +58,9 @@ const getTaskById = async (req, res) => {
 
         res.status(200).json({
             success:true,
-            message: "Task retrieved successfully", task });
+            message: "Task retrieved successfully", 
+            data:task 
+        });
     } catch (error) {
         res.status(500).json({ 
             success:false,
