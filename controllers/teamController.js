@@ -2,6 +2,7 @@ const Team = require('../models/Team-model');
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
 const User = require('../models/User-model');
+const { default: mongoose } = require('mongoose');
 
 const generatePassword = () => {
     return Math.random().toString(36).slice(-8); // Generates an 8-character password
@@ -239,12 +240,12 @@ const getTeamMembers = async (req, res) => {
         const teamId = req.user.id;
         console.log(teamId);
         // Fetch all users and populate related fields
-        const users = await User.find({
-            team: teamId
-        })
-        // .populate('team tasks');
+        const team = await Team.findById(teamId)
+        .populate('members tasks').exec();
 
-        console.log(users)
+        console.log(team)
+
+        const users = team?.members;
 
         // Check if users exist
         if (!users) {
