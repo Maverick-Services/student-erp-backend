@@ -67,50 +67,60 @@ const getTaskById = async (req, res) => {
 };
 
 const createTask = async (req, res) => {
-    const { name, description, assignedTo, steps, clientName, deadline, status } = req.body;
-
+    
     try {
-        // const teamId = req?.user?.id;
-
-        //validate team
-
-        // Validate required fields
-        if (!name || !clientName || !deadline) {
+        const { name, description, clientName, deadline, status } = req.body;
+        const teamId = req?.user?.id;
+        
+        //Validate required fields
+        if (!name || !clientName || !deadline || !teamId) {
             return res.status(400).json({
                 success:false,
                  message: "Name, Client Name, and Deadline are required." });
         }
 
+        //validate team
+        const team = await Team.findById(teamId)
+        .populate('members tasks').exec();
+
+        console.log(team)
+
+        // Check if users exist
+        if (!team) {
+            // console.log(users)
+            return res.status(404).json({ 
+                success:false,
+                message: "Team not found"
+            });
+        }
+
         //check if team exist
 
         // Create new task
-        const task = new Task({
+        const task = Task.create({
             name,
             description,
-            assignedTo,
-            steps,
             clientName,
             deadline,
             status
         });
 
-        // Save to database
-        await task.save();
-
-        //add steps to task
-        steps?.forEach(st => {
-            //create step
-            // const newStep = StepModel.create({...st,taskId});
-
-            //add this step in task's steps array
-
-        })
-
         //push task id in team tasks array
+        const updatedTeam = await Team.findByIdAndUpdate(
+            teamId,
+            {
+                $push:{
+                    tasks: task?._id
+                }
+            }
+        ).select('-password').exec();
 
         res.status(201).json({ 
             success:true,
-            message: "Task created successfully", data:task });
+            message: "Task created successfully", 
+            data:task,
+            updatedTeam 
+        });
     } catch (error) {
         res.status(500).json({
             success:false,

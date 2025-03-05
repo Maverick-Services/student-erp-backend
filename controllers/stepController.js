@@ -21,7 +21,7 @@ const getStepById = async (req, res) => {
 
 const createStep = async (req, res) => {
     try {
-        const { name, description, deadline, status, requirements } = req.body;
+        const { name, description, assignedTo,deadline, status, requirements } = req.body;
 
 
         // Check if required fields are provided
@@ -37,7 +37,7 @@ const createStep = async (req, res) => {
         }
 
         // Create and save the new step
-        const step = new Step({ name, description, deadline, status, requirements });
+        const step = new Step({ name, description, assignedTo,deadline, status, requirements });
         await step.save();
 
         res.status(201).json({ message: "Step created successfully", step });
@@ -49,7 +49,7 @@ const createStep = async (req, res) => {
 const updateStep = async (req, res) => {
     try {
         // Check if the request body contains required fields
-        const { name, description, deadline, status, requirements } = req.body;
+        const { name, description, deadline, assignedTo,status, requirements } = req.body;
 
         // if (!name || !deadline || !Array.isArray(requirements) || requirements.length === 0) {
         //     return res.status(400).json({ 
@@ -60,7 +60,7 @@ const updateStep = async (req, res) => {
         // Update the step and return the updated document
         const step = await Step.findByIdAndUpdate(
             req.body.id, 
-            { name, description, deadline, status, requirements }, 
+            { name, description, deadline, assignedTo,status, requirements }, 
             { new: true }
         ).populate('requirements'); // Populate requirements
 
