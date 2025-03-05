@@ -5,18 +5,34 @@ const getSteps = async (req, res) => {
     try {
         // const steps = await Step.find().populate('requirements'); // Populate requirements
         const steps = await Step.find();
-        res.status(200).json(steps);
+        res.status(200).json({
+            success:true,
+            data:steps
+        });
     } catch (error) {
-        res.status(500).json({ message: "Internal Server Error", error: error.message });
+        res.status(500).json({ 
+            success:false,
+            message: "Internal Server Error", 
+            error: error.message });
     }
 };
 const getStepById = async (req, res) => {
     try {
-        const step = await Step.findById(req.body.id).populate('requirements'); // Corrected population
-        if (!step) return res.status(404).json({ message: 'Step not found' });
-        res.status(200).json(step);
+        // const step = await Step.findById(req.body.id).populate('requirements'); // Corrected population
+        const step = await Step.findById(req.body.stepId);
+        if (!step) return res.status(404).json({
+            success:false,
+             message: 'Step not found'
+             });
+        res.status(200).json({
+            success:true,
+            data:step
+        });
     } catch (error) {
-        res.status(500).json({ message: "Internal Server Error", error: error.message });
+        res.status(500).json({ 
+            success:false,
+            message: "Internal Server Error", 
+            error: error.message });
     }
 };
 
@@ -74,7 +90,7 @@ const createStep = async (req, res) => {
 const updateStep = async (req, res) => {
     try {
         // Check if the request body contains required fields
-        const { name, description, deadline, assignedTo,status, requirements } = req.body;
+        const { name, description, assignedTo, status } = req.body;
 
         // if (!name || !deadline || !Array.isArray(requirements) || requirements.length === 0) {
         //     return res.status(400).json({ 
@@ -84,14 +100,18 @@ const updateStep = async (req, res) => {
 
         // Update the step and return the updated document
         const step = await Step.findByIdAndUpdate(
-            req.body.id, 
-            { name, description, deadline, assignedTo,status, requirements }, 
+            req.body.stepId, 
+            { name, description, assignedTo, status }, 
             { new: true }
-        ).populate('requirements'); // Populate requirements
+        ); // Populate requirements
 
-        if (!step) return res.status(404).json({ message: 'Step not found' });
+        if (!step) return res.status(404).json({ 
+            success:false,
+            message: 'Step not found' });
 
-        res.status(200).json(step);
+        res.status(200).json({
+            success:true,
+            data:step});
     } catch (error) {
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
@@ -101,10 +121,16 @@ const updateStep = async (req, res) => {
 const deleteStep = async (req, res) => {
     try {
         const step = await Step.findByIdAndDelete(req.body.id);
-        if (!step) return res.status(404).json({ message: 'Step not found' });
-        res.json({ message: 'Step deleted successfully' });
+        if (!step) return res.status(404).json({ 
+            success:false,
+            message: 'Step not found' });
+        res.json({ 
+            success:true,
+            message: 'Step deleted successfully' });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ 
+            success:false,
+            message: error.message });
     }
 };
 
