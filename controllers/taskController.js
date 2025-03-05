@@ -1,19 +1,37 @@
 const StepModel = require('../models/Step-model');
 const Task = require('../models/Task-model');
+const Team = require("../models/Team-model")
 const mongoose = require('mongoose');
+
 const getTasks = async (req, res) => {
     try {
-        // Populate assigned users and steps
-        const tasks = await Task.find().populate('assignedTo').populate('steps');
-        
-        res.json({
+        const teamId = req.user.id;
+         const team = await Team.findById(teamId)
+        .populate('members tasks').exec();
+
+        console.log(team)
+
+        // Check if users exist
+        if (!team) {
+            // console.log(users)
+            return res.status(404).json({ 
+                success:false,
+                message: "Team not found"
+            });
+        }
+        const tasks = team?.tasks;
+
+        res.status(200).json({
             success:true,
-             message: "Tasks retrieved successfully", data:tasks });
+            message: "Tasks Fetched Successfully",
+            data:tasks
+        });
     } catch (error) {
+        console.error("Error fetching tasks:", error);
         res.status(500).json({
             success:false,
-             message: "Internal Server Error",
-              error: error.message });
+                message: "Internal Server Error"
+                });
     }
 };
 

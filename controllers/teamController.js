@@ -245,17 +245,17 @@ const getTeamMembers = async (req, res) => {
 
         console.log(team)
 
-        const users = team?.members;
-
+        
         // Check if users exist
-        if (!users) {
-            console.log(users)
+        if (!team) {
+            // console.log(users)
             return res.status(404).json({ 
                 success:false,
-                message: "No users found"
-             }
-            );
-        }
+                message: "Team not found"
+            }
+        );
+    }
+        const users = team?.members;
 
         res.status(200).json({
             success:true,
