@@ -2,6 +2,7 @@ const StepModel = require('../models/Step-model');
 const Task = require('../models/Task-model');
 const Team = require("../models/Team-model")
 const mongoose = require('mongoose');
+const Step = require('../models/Step-model')
 
 const getTasks = async (req, res) => {
     try {
@@ -37,17 +38,17 @@ const getTasks = async (req, res) => {
 
 const getTaskById = async (req, res) => {
     try {
-        const { id } = req.body;
+        const { taskId } = req.body;
 
         // Check if ID is a valid MongoDB ObjectId
-        if (!mongoose.Types.ObjectId.isValid(id)) {
+        if (!taskId && !mongoose.Types.ObjectId.isValid(taskId)) {
             return res.status(400).json({
                 success:false,
-                 message: "Invalid Task ID" });
+                 message: "Task not Found" });
         }
 
         // Find task by ID and populate assignedTo & steps
-        const task = await Task.findById(id).populate('assignedTo').populate('steps');
+        const task = await Task.findById(taskId).populate('steps');
 
         if (!task) {
             return res.status(404).json({
