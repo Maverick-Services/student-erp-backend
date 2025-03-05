@@ -19,6 +19,10 @@ const taskSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Step' 
     }], // Array of Step IDs
+    team: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Team' 
+    }, // Array of Step IDs
     clientName: { 
         type: String,
         required: true 

@@ -83,8 +83,7 @@ const createTask = async (req, res) => {
         const team = await Team.findById(teamId)
         .populate('members tasks').exec();
 
-        console.log(team)
-
+        
         // Check if users exist
         if (!team) {
             // console.log(users)
@@ -93,18 +92,20 @@ const createTask = async (req, res) => {
                 message: "Team not found"
             });
         }
-
+        
         //check if team exist
-
+        
         // Create new task
-        const task = Task.create({
+        const task = await Task.create({
             name,
             description,
             clientName,
             deadline,
+            team:teamId,
             status
         });
-
+        // console.log("Task",task)
+        
         //push task id in team tasks array
         const updatedTeam = await Team.findByIdAndUpdate(
             teamId,
@@ -112,8 +113,11 @@ const createTask = async (req, res) => {
                 $push:{
                     tasks: task?._id
                 }
-            }
-        ).select('-password').exec();
+            },
+            {new:true}
+        ).populate('tasks')
+        .select('-password').exec();
+        // console.log(updatedTeam)
 
         res.status(201).json({ 
             success:true,
