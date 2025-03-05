@@ -19,8 +19,8 @@ const stepSchema = new mongoose.Schema({
     },
     status: { 
         type: String, 
-        enum: ['completed', 'pending'],
-        default: 'pending'
+        enum: ['Completed', 'Pending'],
+        default: 'Pending'
      },
      //refrence to Assigned model
      assignedTo: { 

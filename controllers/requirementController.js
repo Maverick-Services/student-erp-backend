@@ -52,7 +52,7 @@ const createRequirement = async (req, res) => {
             name, 
             responsibleParty, 
             step, 
-            status: status || 'pending' 
+            status: status || 'Pending' 
         });
 
         await requirement.save();
