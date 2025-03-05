@@ -3,7 +3,8 @@ const Task = require('../models/Task-model');
 const mongoose = require('mongoose');
 const getSteps = async (req, res) => {
     try {
-        const steps = await Step.find().populate('requirements'); // Populate requirements
+        // const steps = await Step.find().populate('requirements'); // Populate requirements
+        const steps = await Step.find();
         res.status(200).json(steps);
     } catch (error) {
         res.status(500).json({ message: "Internal Server Error", error: error.message });
