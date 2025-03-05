@@ -1,4 +1,5 @@
 const Step = require('../models/Step-model');
+const Task = require('../models/Task-model');
 const mongoose = require('mongoose');
 const getSteps = async (req, res) => {
     try {
@@ -21,28 +22,51 @@ const getStepById = async (req, res) => {
 
 const createStep = async (req, res) => {
     try {
-        const { name, description, assignedTo,deadline, status, requirements } = req.body;
+        const {taskId, name, description, assignedTo, status } = req.body;
 
 
         // Check if required fields are provided
-        // if (!name || !deadline || !requirements || !Array.isArray(requirements) || requirements.length === 0) {
-        //     return res.status(400).json({ message: "Missing required fields: name, deadline, and at least one requirement." });
-        // }
-
-        // Validate MongoDB ObjectId for requirements
-        for (const reqId of requirements) {
-            if (!mongoose.Types.ObjectId.isValid(reqId)) {
-                return res.status(400).json({ message: `Invalid Requirement ID: ${reqId}` });
-            }
+        if (!taskId || !name || !description || !assignedTo || !status) {
+            return res.status(400).json({ 
+                success: false,
+                message: "Fill Complete Details" 
+            });
         }
 
-        // Create and save the new step
-        const step = new Step({ name, description, assignedTo,deadline, status, requirements });
-        await step.save();
+        // Validate MongoDB ObjectId for requirements
+        // for (const reqId of requirements) {
+        //     if (!mongoose.Types.ObjectId.isValid(reqId)) {
+        //         return res.status(400).json({ message: `Invalid Requirement ID: ${reqId}` });
+        //     }
+        // }
 
-        res.status(201).json({ message: "Step created successfully", step });
+        // Create and save the new step
+        const step = await Step.create({ taskId, name, description, assignedTo, status });
+        
+        //push step id in team steps array in task
+        const updatedTask = await Task.findByIdAndUpdate(
+            taskId,
+            {
+                $push:{
+                    steps: step?._id
+                }
+            },
+            {new:true}
+        )
+        .populate('steps').exec();
+        // console.log(updatedTask)
+
+        res.status(201).json({ 
+            success:true,
+            message: "Step created successfully", 
+            data:updatedTask 
+        });
     } catch (error) {
-        res.status(500).json({ message: "Internal Server Error", error: error.message });
+        res.status(500).json({ 
+            success:false,
+            message: "Internal Server Error", 
+            error: error.message 
+        });
     }
 };
 
