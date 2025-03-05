@@ -138,26 +138,22 @@ const createTask = async (req, res) => {
 
 const updateTask = async (req, res) => {
     try {
-        const { id } = req.body;
-
+        const { taskId } = req.body;
+        console.log(taskId)
         // Check if the ID is a valid MongoDB ObjectId
-        if (!mongoose.Types.ObjectId.isValid(id)) {
+        if (!taskId && !mongoose.Types.ObjectId.isValid(taskId)) {
             return res.status(400).json({
                 success:false,
                  message: "Invalid Task ID" 
                 });
         }
 
+       
         // Ensure required fields are not empty (optional: you can customize this further)
-        const { name, clientName, deadline } = req.body;
-        if (!name || !clientName || !deadline) {
-            return res.status(400).json({ 
-                success:false,
-                message: "Required fields: name, clientName, and deadline" });
-        }
+        const { name, description,clientName, deadline,status } = req.body;
 
         // Find and update the task
-        const task = await Task.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
+        const task = await Task.findByIdAndUpdate(taskId, req.body, { new: true, runValidators: true });
 
         if (!task) {
             return res.status(404).json({ 
