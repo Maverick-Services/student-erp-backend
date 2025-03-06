@@ -121,7 +121,7 @@ const getUserById = async (req, res) => {
 //     }
 // };
 const createUser = async (req, res) => {
-    const { name, email, role, team, phoneNo, teamLeader, tasks } = req.body;
+    const { name, email, team,role, phoneNo } = req.body;
 
     try {
         // Check if email already exists
@@ -137,23 +137,34 @@ const createUser = async (req, res) => {
         const generatedPassword = generateRandomPassword();
         const hashedPassword = await bcrypt.hash(generatedPassword, 10);
 
+        let data = {
+            name, email, role, phoneNo,
+            password: hashedPassword
+        };
+        if(req.body.team && mongoose.Types.ObjectId.isValid(req.body.team)){
+            data = {
+                ...data,
+                team: req.body.team
+            }
+        }else{
+            data = {
+                ...data,
+                team: null
+            }
+
+        }
+                   
+
         // Create user
         const user = new User({
-            name,
-            email,
-            password: hashedPassword,
-            phoneNo,
-            role,
-            team,
-            teamLeader,
-            tasks
+            ...data
         });
 
         await user.save();
 
         // **Add User to the Team's Members Array Automatically**
-        if (team) {
-            await Team.findByIdAndUpdate(team, { $addToSet: { members: user._id } });
+        if (req.body.team) {
+            await Team.findByIdAndUpdate(team, { $push: { members: user._id } });
         }
 
         // Send email with generated password

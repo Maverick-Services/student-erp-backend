@@ -232,6 +232,9 @@ const updateTeam = async (req, res) => {
                     }
                 );
                 updates = {...updates,teamLeader}
+
+                //mail send to new leader
+                
             }else{
                 updates = {...updates,teamLeader: null}
             }
