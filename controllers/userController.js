@@ -54,10 +54,10 @@ const getUsers = async (req, res) => {
 // Get User by ID
 const getUserById = async (req, res) => {
     try {
-        const { id } = req.body;
+        const { userId } = req.body;
 
         // Validate if ID is a valid MongoDB ObjectId
-        if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+        if (!userId.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({ 
                 success:false,
                 message: "Invalid user ID format" 
@@ -65,7 +65,7 @@ const getUserById = async (req, res) => {
         }
 
         // Find user by ID and populate related fields
-        const user = await User.findById(id).populate('team tasks');
+        const user = await User.findById(userId).populate('team tasks');
 
         // Check if user exists
         if (!user) {
@@ -182,13 +182,13 @@ const createUser = async (req, res) => {
 // Update User
 const updateUser = async (req, res) => {
     try {
-        const { id, name, email, phoneNo, password, role, team, teamLeader, tasks } = req.body;
+        const { userId, name, email, phoneNo, password, role, team, teamLeader, tasks } = req.body;
 
-        if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+        if (!userId.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({ success: false, message: "Invalid user ID format" });
         }
 
-        let user = await User.findById(id);
+        let user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
@@ -209,7 +209,7 @@ const updateUser = async (req, res) => {
         }
 
         user = await User.findByIdAndUpdate(
-            id,
+            userId,
             { name, email, password: hashedPassword, role, team, phoneNo, teamLeader, tasks },
             { new: true, runValidators: true }
         ).populate("team tasks");
