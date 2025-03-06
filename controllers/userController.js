@@ -202,10 +202,10 @@ const updateUser = async (req, res) => {
         if (team && user.team?.toString() !== team) {
             // Remove the user from their previous team's members array
             if (user.team) {
-                await Team.findByIdAndUpdate(user.team, { $pull: { members: id } });
+                await Team.findByIdAndUpdate(user.team, { $pull: { members: userId } });
             }
             // Add the user to the new team's members array
-            await Team.findByIdAndUpdate(team, { $addToSet: { members: id } });
+            await Team.findByIdAndUpdate(team, { $addToSet: { members: userId } });
         }
 
         user = await User.findByIdAndUpdate(
