@@ -14,10 +14,10 @@ router.get('/kamm', authMiddleware , async (req, res) => {
 })
 
 // ✅ Validate ID before calling getUserById
-router.post('/getUserById', getUserById);
+router.post('/getUserById', authMiddleware, isAdmin,getUserById);
 
 router.post('/createUser', authMiddleware, isAdmin, createUser);
 router.put('/updateUser',authMiddleware, isAdmin, updateUser);
-router.delete('/deleteUser', deleteUser);
+router.delete('/deleteUser', authMiddleware, isAdmin,deleteUser);
 
 module.exports = router;
