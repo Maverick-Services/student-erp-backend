@@ -172,7 +172,7 @@ const createUser = async (req, res) => {
             from: process.env.EMAIL,
             to: email,
             subject: 'Your Account Credentials',
-            text: `Hello ${name},\n\nYour account has been created successfully.\nYour login credentials:\nEmail: ${email}\nPassword: ${generatedPassword}\n\nPlease change your password after logging in.\n\nBest regards,\nYour Team`
+            text: `Hello ${name}, ${role}Login\n\nYour account has been created successfully.\nYour login credentials:\nEmail: ${email}\nPassword: ${generatedPassword}\n\nPlease change your password after logging in.\n\nBest regards,\nYour Team`
         };
 
         await transporter.sendMail(mailOptions);
