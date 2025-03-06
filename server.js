@@ -20,10 +20,16 @@ app.use(cors());
 
 
 // const allowedOrigins = ["http://localhost:3000", "https://yourfrontenddomain.com"];
+// app.use(cors({
+//     origin: "*",
+//     credentials: true,
+// }));
 app.use(cors({
-    origin: "*",
+    origin: '*', // Allows all origins (not recommended for production)
+    methods: 'GET,POST,PUT,DELETE',
+    allowedHeaders: 'Content-Type,Authorization',
     credentials: true,
-}));
+  }));
 // Middleware
 app.use(express.json()); // To parse JSON requests
 app.use(express.urlencoded({ extended: true }));
