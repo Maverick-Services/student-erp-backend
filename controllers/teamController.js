@@ -133,7 +133,7 @@ const createTeam = async (req, res) => {
             userName: userId,
             password: hashedPassword
         };
-        if(!teamLeader && !mongoose.Types.ObjectId.isValid(teamLeader)){
+        if(teamLeader && mongoose.Types.ObjectId.isValid(teamLeader)){
             data = {
                 ...data,
                 teamLeader
