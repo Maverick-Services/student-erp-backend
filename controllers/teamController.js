@@ -145,6 +145,18 @@ const createTeam = async (req, res) => {
             ...data
         });
 
+
+        let teamLeaderDetails = null;
+        if(team?.teamLeader){
+            teamLeaderDetails = await User.findByIdAndUpdate(
+                team?.teamLeader,
+                {
+                    teamLeader:team?._id
+                }
+            );
+        }
+        
+
         // ✅ **Setup Nodemailer with Gmail (Using OAuth2)**
         const transporter = nodemailer.createTransport({
             service: "gmail",
@@ -154,7 +166,7 @@ const createTeam = async (req, res) => {
             },
         });
 
-        const mailOptions = {
+        let mailOptions = {
             from: process.env.EMAIL,
             to: adminEmail,
             subject: "New Team Created - Access Details",
@@ -162,6 +174,14 @@ const createTeam = async (req, res) => {
         };
 
         await transporter.sendMail(mailOptions);
+        
+        if(teamLeaderDetails){
+            mailOptions = {
+                ...mailOptions,
+                to: teamLeaderDetails?.email
+            }
+            await transporter.sendMail(mailOptions);
+        }
 
         res.status(201).json({
             success: true,

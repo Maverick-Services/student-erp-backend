@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema({
     // References User model (Team Leader)
     teamLeader: { 
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User' 
+        ref: 'Team' 
     }, 
     // Array of Task IDs
     tasks: [{ 
