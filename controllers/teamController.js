@@ -199,44 +199,84 @@ const createTeam = async (req, res) => {
 
 const updateTeam = async (req, res) => {
     try {
-        const { teamId, teamLeader, members } = req.body;
+        const { teamId, teamName, description, teamLeader } = req.body;
 
         const existingTeam = await Team.findById(teamId);
+        
         if (!existingTeam) {
             return res.status(404).json({ success: false, message: "Team not found" });
         }
 
+        let updates = {};
+        if(teamName)
+            updates = {...updates,teamName}
+        if(description)
+            updates = {...updates,description}
+
         // If teamLeader is updated, ensure they are not leading another team
-        if (teamLeader && existingTeam.teamLeader?.toString() !== teamLeader) {
-            await Team.updateMany(
-                { teamLeader: teamLeader }, 
-                { $unset: { teamLeader: "" } }
+        if(existingTeam?.teamLeader){
+
+            //Remove the previous leader power from previous team leader
+            await User.findByIdAndUpdate(
+                existingTeam?.teamLeader,
+                {
+                    teamLeader: null
+                }
             );
+
+            if (teamLeader && mongoose.Types.ObjectId.isValid(teamLeader)) {
+                await User.findByIdAndUpdate(
+                    teamLeader,
+                    {
+                        teamLeader: existingTeam?._id
+                    }
+                );
+                updates = {...updates,teamLeader}
+            }else{
+                updates = {...updates,teamLeader: null}
+            }
+
+           
         }
+
+        
+        //if teamLeader added in userId
 
         // If members are updated, ensure they are not part of multiple teams
-        if (members && members.length > 0) {
-            await Team.updateMany(
-                { _id: { $ne: id }, members: { $in: members } },
-                { $pull: { members: { $in: members } } }
-            );
+        // if (members && members.length > 0) {
+        //     await Team.updateMany(
+        //         { _id: { $ne: id }, members: { $in: members } },
+        //         { $pull: { members: { $in: members } } }
+        //     );
 
-            // **Automatically assign team to its members**
-            await User.updateMany(
-                { _id: { $in: members } },
-                { team: id }
-            );
-        }
+        //     // **Automatically assign team to its members**
+        //     await User.updateMany(
+        //         { _id: { $in: members } },
+        //         { team: id }
+        //     );
+        // }
 
         const updatedTeam = await Team.findByIdAndUpdate(
             teamId,
-            req.body,
+            updates,
             { new: true, runValidators: true }
         )
-        .populate('teamLeader', 'name email')
-        .populate('members', 'name email')
-        .populate('tasks', 'title description')
+        .populate('teamLeader')
+        .populate('members')
+        .populate('tasks')
         .exec();
+
+        // let teamLeaderDetailsUpdate=null
+        // if(updatedTeam?.teamLeader){
+        //     teamLeaderDetailsUpdate = await User.findByIdAndUpdate(
+        //         updatedTeam?.teamLeader,
+        //         {
+        //             teamLeader:updatedTeam?._id
+        //         }
+        //     );
+        // }
+
+        // console.log(updatedTeam?.teamLeader)
 
         res.status(200).json({ success: true, message: "Team updated successfully", data: updatedTeam });
     } catch (error) {
