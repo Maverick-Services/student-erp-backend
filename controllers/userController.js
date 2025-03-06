@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const Team = require('../models/Team-model');
 const crypto = require('crypto');
+const { default: mongoose } = require('mongoose');
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
