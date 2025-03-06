@@ -21,7 +21,11 @@ const generateRandomPassword = () => {
 const getUsers = async (req, res) => {
     try {
         // Fetch all users and populate related fields
-        const users = await User.find().populate('team tasks');
+        const users = await User.find(
+            {
+                role:"employee"
+            }
+        ).populate('team tasks');
 
         // Check if users exist
         if (!users || users.length === 0) {

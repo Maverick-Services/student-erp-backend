@@ -54,7 +54,7 @@ router.post('/login', async (req, res) => {
         const { email, password } = req.body;
 
         // Check if user exists
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email }).populate("team tasks");
         if (!user) {
             return res.status(400).json({ 
                 success:false,
@@ -76,7 +76,8 @@ router.post('/login', async (req, res) => {
 
         res.json({ 
             success:true,
-            message: "Login successful", data:token 
+            message: "Login successful", 
+            data:{token,user} 
         });
 
     } catch (error) {
