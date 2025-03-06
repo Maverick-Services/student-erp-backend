@@ -96,11 +96,18 @@ const getTeamById = async (req, res) => {
 //     }
 // };
 const createTeam = async (req, res) => {
-    const { teamLeader, teamName, description, members, tasks } = req.body;
-
+    
     try {
+        const { teamLeader, teamName, description, members, tasks } = req.body;
+        
+        if(!teamName || !description){
+            return res.status(404).json({
+                success: false,
+                message: "Required Details Not found"
+            });
+        }
         // **Extract Admin Email from Token**
-        if (!req.user || !req.user.email) {
+        if (!req.user && !req.user.email) {
             return res.status(401).json({
                 success: false,
                 message: "Unauthorized: Admin email not found in token"
@@ -121,17 +128,22 @@ const createTeam = async (req, res) => {
         const password = generatePassword();
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create and Save Team
-        const team = new Team({
-            teamLeader,
-            teamName,
-            description,
-            members,
-            tasks,
+        let data = {
+            teamName,description,
             userName: userId,
             password: hashedPassword
+        };
+        if(!teamLeader && !mongoose.Types.ObjectId.isValid(teamLeader)){
+            data = {
+                ...data,
+                teamLeader
+            }
+        }
+
+        // Create and Save Team
+        const team = await Team.create({
+            ...data
         });
-        await team.save();
 
         // ✅ **Setup Nodemailer with Gmail (Using OAuth2)**
         const transporter = nodemailer.createTransport({
