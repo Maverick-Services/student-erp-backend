@@ -37,16 +37,16 @@ const getTeams = async (req, res) => {
 
 const getTeamById = async (req, res) => {
     try {
-        const { id } = req.body;
+        const { teamId } = req.body;
 
-        if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+        if (!teamId.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({
                 success:false,
                  message: "Invalid team ID format" 
                 });
         }
 
-        const team = await Team.findById(id)
+        const team = await Team.findById(teamId)
             .populate('teamLeader', 'name email') // Populate only name & email for team leader
             .populate('members', 'name email')
             .populate('tasks', 'title description')
@@ -58,7 +58,7 @@ const getTeamById = async (req, res) => {
              });
 
         res.status(200).json({
-            success:false,
+            success:true,
             message: "Team fetched Successfully By Id",
             data:team});
     } catch (error) {
@@ -167,9 +167,9 @@ const createTeam = async (req, res) => {
 
 const updateTeam = async (req, res) => {
     try {
-        const { id, teamLeader, members } = req.body;
+        const { teamId, teamLeader, members } = req.body;
 
-        const existingTeam = await Team.findById(id);
+        const existingTeam = await Team.findById(teamId);
         if (!existingTeam) {
             return res.status(404).json({ success: false, message: "Team not found" });
         }
@@ -197,7 +197,7 @@ const updateTeam = async (req, res) => {
         }
 
         const updatedTeam = await Team.findByIdAndUpdate(
-            id,
+            teamId,
             req.body,
             { new: true, runValidators: true }
         )

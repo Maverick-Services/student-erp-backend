@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const authMiddleware = require('../middleware/authTeamMiddleware')
+const authTeamMiddleware = require('../middleware/authTeamMiddleware')
+const { authMiddleware, isAdmin } = require('../middleware/authMiddleware');
 
 const { 
     getTeams, 
@@ -13,11 +14,11 @@ const {
 
 
 // router.get('/:id', getTeamById);
-router.get('/', getTeams);
-router.post('/getTeamById', getTeamById)
-router.get('/getTeamMembers',authMiddleware,getTeamMembers)
-router.post('/createTeam', authMiddleware ,createTeam);
-router.put('/updateTeam', updateTeam);
-router.delete('/deleteTeam', deleteTeam);
+router.get('/getTeams', authMiddleware, isAdmin, getTeams);
+router.post('/getTeamById', authMiddleware, isAdmin, getTeamById)
+router.get('/getTeamMembers',authTeamMiddleware,getTeamMembers)
+router.post('/createTeam', authMiddleware, isAdmin, createTeam);
+router.put('/updateTeam', authMiddleware, isAdmin, updateTeam);
+router.delete('/deleteTeam', authMiddleware, isAdmin, deleteTeam);
 
 module.exports = router;
