@@ -10,9 +10,9 @@ const generatePassword = () => {
 const getTeams = async (req, res) => {
     try {
         const teams = await Team.find()
-            .populate('teamLeader', 'name email') // Fetch only necessary fields
-            .populate('members', 'name email') 
-            .populate('tasks', 'title description')
+            .populate('teamLeader') // Fetch only necessary fields
+            .populate('members') 
+            .populate('tasks')
             .exec();     // Ensures population executes
 
         if (!teams || teams.length === 0) {
@@ -47,9 +47,9 @@ const getTeamById = async (req, res) => {
         }
 
         const team = await Team.findById(teamId)
-            .populate('teamLeader', 'name email') // Populate only name & email for team leader
-            .populate('members', 'name email')
-            .populate('tasks', 'title description')
+            .populate('teamLeader') // Populate only name & email for team leader
+            .populate('members')
+            .populate('tasks', 'steps team')
             .exec();  // Ensures population is executed
 
         if (!team) return res.status(404).json({
