@@ -8,7 +8,6 @@ router.get('/',authMiddleware, getTasks);
 // router.get('/:id', getTaskById);
 router.post("/getTaskById",getTaskById)
 router.post('/createTask', authMiddleware,createTask);
-router.put('/updateTask', authMiddleware,updateTask);
+router.put('/updateTask',updateTask);
 router.delete('/deleteTask', authMiddleware,deleteTask);
-
 module.exports = router;

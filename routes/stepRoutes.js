@@ -8,7 +8,7 @@ router.get('/getSteps', getSteps);
 // router.get('/:id', getStepById);
 router.post("/getStepById",getStepById)
 router.post('/createStep', authMiddleware, createStep);
-router.put('/updateStep', authMiddleware, updateStep);
+router.put('/updateStep',  updateStep);
 router.delete('/deleteStep', authMiddleware, deleteStep);
 
 module.exports = router;
