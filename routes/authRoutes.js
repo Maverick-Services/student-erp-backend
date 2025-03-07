@@ -54,7 +54,7 @@ router.post('/login', async (req, res) => {
         const { email, password } = req.body;
 
         // Check if user exists
-        const user = await User.findOne({ email }).populate("team tasks");
+        const user = await User.findOne({ email }).populate("team tasks teamLeader");
         if (!user) {
             return res.status(400).json({ 
                 success:false,
@@ -72,7 +72,7 @@ router.post('/login', async (req, res) => {
         }
 
         // Generate JWT Token
-        const token = jwt.sign({ id: user._id, role: user.role , email: user.email ,teamLeader:user.teamLeader}, process.env.JWT_SECRET, { expiresIn: '2d' });
+        const token = jwt.sign({ id: user._id, role: user.role , email: user.email }, process.env.JWT_SECRET, { expiresIn: '2d' });
 
         res.json({ 
             success:true,
