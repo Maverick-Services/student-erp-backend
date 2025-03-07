@@ -308,7 +308,7 @@ const deleteTeam = async (req, res) => {
 // Get All Users
 const getTeamMembers = async (req, res) => {
     try {
-        const teamId = req.user.id;
+        const teamId = req?.user?.id || req?.body?.teamId;
         console.log(teamId);
         // Fetch all users and populate related fields
         const team = await Team.findById(teamId)

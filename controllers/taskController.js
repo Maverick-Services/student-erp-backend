@@ -48,7 +48,7 @@ const getTaskById = async (req, res) => {
         }
 
         // Find task by ID and populate assignedTo & steps
-        const task = await Task.findById(taskId).populate('steps');
+        const task = await Task.findById(taskId).populate('team steps');
 
         if (!task) {
             return res.status(404).json({
