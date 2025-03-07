@@ -275,4 +275,44 @@ const deleteUser = async (req, res) => {
 };
 
 
-module.exports = { getUsers, getUserById, createUser, updateUser, deleteUser };
+const getTasksbyUser = async(req,res)=>{
+    
+    try {
+        const  userId  = req.user.id;
+
+        // Validate if ID is a valid MongoDB ObjectId
+        if (!userId.match(/^[0-9a-fA-F]{24}$/)) {
+            return res.status(400).json({ 
+                success:false,
+                message: "Invalid user ID format" 
+            });
+        }
+
+        // Find user by ID and populate related fields
+        const user = await User.findById(userId).populate('team tasks');
+
+        // Check if user exists
+        if (!user) {
+            return res.status(404).json({
+                success:false,
+                 message: "User not found" 
+                });
+        }
+
+        res.status(200).json({
+            success:true,
+            message:"Users Fetched Successfully By Id",
+            data:user.tasks
+        });
+    } catch (error) {
+        console.error("Error fetching user by ID:", error);
+        res.status(500).json({
+            success:false,
+             message: "Internal Server Error" 
+            });
+    }
+    
+}
+
+
+module.exports = { getUsers, getUserById, createUser, updateUser, deleteUser,getTasksbyUser };
