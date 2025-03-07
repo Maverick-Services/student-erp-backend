@@ -215,31 +215,27 @@ const updateTeam = async (req, res) => {
 
         // If teamLeader is updated, ensure they are not leading another team
         if(existingTeam?.teamLeader){
-
             //Remove the previous leader power from previous team leader
             await User.findByIdAndUpdate(
                 existingTeam?.teamLeader,
                 {
                     teamLeader: null
                 }
+            );           
+        }
+        if (teamLeader && mongoose.Types.ObjectId.isValid(teamLeader)) {
+            await User.findByIdAndUpdate(
+                teamLeader,
+                {
+                    teamLeader: existingTeam?._id
+                }
             );
+            updates = {...updates,teamLeader}
 
-            if (teamLeader && mongoose.Types.ObjectId.isValid(teamLeader)) {
-                await User.findByIdAndUpdate(
-                    teamLeader,
-                    {
-                        teamLeader: existingTeam?._id
-                    }
-                );
-                updates = {...updates,teamLeader}
-
-                //mail send to new leader
-                
-            }else{
-                updates = {...updates,teamLeader: null}
-            }
-
-           
+            //mail send to new leader
+            
+        }else{
+            updates = {...updates,teamLeader: null}
         }
 
         
