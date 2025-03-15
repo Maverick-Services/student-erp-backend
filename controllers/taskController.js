@@ -138,8 +138,9 @@ const createTask = async (req, res) => {
 
 const updateTask = async (req, res) => {
     try {
-        const { taskId } = req.body;
-        console.log(taskId)
+        const { taskId ,team} = req.body;
+
+        
         // Check if the ID is a valid MongoDB ObjectId
         if (!taskId && !mongoose.Types.ObjectId.isValid(taskId)) {
             return res.status(400).json({
@@ -147,6 +148,14 @@ const updateTask = async (req, res) => {
                  message: "Invalid Task ID" 
                 });
         }
+
+        if(!team && !mongoose.Types.ObjectId.isValid(team)){
+            return res.status(400).json({
+                success:false,
+                message:"Invalid Team Id"
+            })
+        }
+       
 
        
         // Ensure required fields are not empty (optional: you can customize this further)
@@ -161,9 +170,16 @@ const updateTask = async (req, res) => {
                 message: "Task not found" });
         }
 
+        const updatedTeamByTask= await Team.findByIdAndUpdate(team,{$push:{
+            tasks:taskId
+        }}).populate("tasks")
+
         res.json({
             success:true,
-             message: "Task updated successfully", data:task });
+             message: "Task updated successfully", data:task ,updatedTeamByTask});
+
+        
+
     } catch (error) {
         res.status(500).json({ 
             success:false,
