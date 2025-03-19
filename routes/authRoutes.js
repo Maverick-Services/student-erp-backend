@@ -48,7 +48,10 @@ router.post('/register', async (req, res) => {
     }
 });
 
+
 // User Login
+
+
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -87,6 +90,11 @@ router.post('/login', async (req, res) => {
             error });
     }
 });
+
+
+
+
+
 router.get('/profile', authMiddleware, async (req, res) => {
     const user = await User.findById(req.user.id).select('-password');
     res.json({

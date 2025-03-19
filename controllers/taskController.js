@@ -10,7 +10,7 @@ const getTasks = async (req, res) => {
          const team = await Team.findById(teamId)
         .populate('members tasks').exec();
 
-        console.log(team)
+        // console.log(team)
 
         // Check if users exist
         if (!team) {
@@ -31,8 +31,8 @@ const getTasks = async (req, res) => {
         console.error("Error fetching tasks:", error);
         res.status(500).json({
             success:false,
-                message: "Internal Server Error"
-                });
+            message: "Internal Server Error"
+        });
     }
 };
 

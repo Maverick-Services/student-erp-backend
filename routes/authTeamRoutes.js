@@ -15,6 +15,7 @@ router.post("/", async (req, res) => {
         let team = await Team.findOne({ userName })
         .populate('teamLeader')
         .populate('members')
+        .populate('memberHistory')
         .populate('tasks').exec();
         if (!team) {
             return res.status(404).json({

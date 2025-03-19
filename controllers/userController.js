@@ -1,18 +1,11 @@
 const User = require('../models/User-model');
+const MembersHistory = require('../models/MembersHistory-model');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const Team = require('../models/Team-model');
 const crypto = require('crypto');
 const { default: mongoose } = require('mongoose');
-
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASSWORD // Replace with an app-specific password for security
-    }
-});
-
+const mailSender = require('../utils/mailSender');
 
 const generateRandomPassword = () => {
     return crypto.randomBytes(6).toString('hex'); // Generates a 12-character random password
@@ -90,37 +83,6 @@ const getUserById = async (req, res) => {
     }
 };
 
-// Create New User
-// const createUser = async (req, res) => {
-//     const { name, email, password, role, team, teamLeader, tasks } = req.body;
-
-//     try {
-//         // Check if email already exists
-//         const existingUser = await User.findOne({ email });
-//         if (existingUser) {
-//             return res.status(400).json({ message: 'Email already exists' });
-//         }
-
-//         // Hash the password
-//         const hashedPassword = await bcrypt.hash(password, 10);
-
-//         // Create user
-//         const user = new User({ 
-//             name, 
-//             email, 
-//             password: hashedPassword, 
-//             role, 
-//             team, 
-//             teamLeader, 
-//             tasks 
-//         });
-
-//         await user.save();
-//         res.status(201).json({ message: 'User created successfully', user });
-//     } catch (error) {
-//         res.status(400).json({ message: error.message });
-//     }
-// };
 const createUser = async (req, res) => {
     const { name, email, team,role, phoneNo } = req.body;
 
@@ -153,8 +115,7 @@ const createUser = async (req, res) => {
                 team: null
             }
 
-        }
-                   
+        }        
 
         // Create user
         const user = new User({
@@ -163,20 +124,25 @@ const createUser = async (req, res) => {
 
         await user.save();
 
-        // **Add User to the Team's Members Array Automatically**
         if (req.body.team) {
-            await Team.findByIdAndUpdate(team, { $push: { members: user._id } });
+
+            // create members history of joining team
+            const newMemerHistory = new MembersHistory({
+                team,
+                user: user?._id,
+                status: 'joined'
+            });
+            await newMemerHistory.save();
+            
+            // **Add User to the Team's Members Array and add the newMemberHistory to the team member history array Automatically**
+            await Team.findByIdAndUpdate(team, { 
+                $push: { members: user._id }, 
+                $push: { memberHistory: newMemerHistory?._id }
+            });
         }
 
-        // Send email with generated password
-        const mailOptions = {
-            from: process.env.EMAIL,
-            to: email,
-            subject: 'Your Account Credentials',
-            text: `Hello ${name}, ${role}Login\n\nYour account has been created successfully.\nYour login credentials:\nEmail: ${email}\nPassword: ${generatedPassword}\n\nPlease change your password after logging in.\n\nBest regards,\nYour Team`
-        };
-
-        await transporter.sendMail(mailOptions);
+        //Send login credentials to new user
+        await mailSender(email,'Your Account Credentials',`Hello ${name}, ${role} Login\n\nYour account has been created successfully.\nYour login credentials:\nEmail: ${email}\nPassword: ${generatedPassword}\n\nPlease change your password after logging in.\n\nBest regards,\nYour Team`)
 
         res.status(201).json({
             success: true,
@@ -212,12 +178,37 @@ const updateUser = async (req, res) => {
 
         // **If team is updated, add user to the team's members array**
         if (team && user.team?.toString() !== team) {
+
             // Remove the user from their previous team's members array
             if (user.team) {
-                await Team.findByIdAndUpdate(user.team, { $pull: { members: userId } });
+                
+                // create member history of leaving team
+                const leftMemberHistory = new MembersHistory({
+                    team: user?.team,
+                    user: user?._id,
+                    status: 'left'
+                });
+                await leftMemberHistory.save();
+                
+                await Team.findByIdAndUpdate(user.team, { 
+                    $pull: { members: userId }, 
+                    $push: { memberHistory: leftMemberHistory?._id }
+                });
             }
+            
+            // create member history of joining new team
+            const newMemberHistory = new MembersHistory({
+                team: team,
+                user: user?._id,
+                status: 'joined'
+            });
+            await newMemberHistory.save();
+
             // Add the user to the new team's members array
-            await Team.findByIdAndUpdate(team, { $addToSet: { members: userId } });
+            await Team.findByIdAndUpdate(team, { 
+                $addToSet: { members: userId }, 
+                $push: { memberHistory: newMemberHistory?._id }
+            });
         }
 
         user = await User.findByIdAndUpdate(
@@ -236,9 +227,6 @@ const updateUser = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 };
-
-
-
 
 // Delete User
 const deleteUser = async (req, res) => {

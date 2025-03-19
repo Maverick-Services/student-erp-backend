@@ -49,7 +49,8 @@ const getTeamById = async (req, res) => {
         const team = await Team.findById(teamId)
             .populate('teamLeader') // Populate only name & email for team leader
             .populate('members')
-            .populate('tasks', 'steps team')
+            .populate('tasks')
+            // .populate('tasks', 'steps team')
             .exec();  // Ensures population is executed
 
         if (!team) return res.status(404).json({
@@ -309,12 +310,12 @@ const deleteTeam = async (req, res) => {
 const getTeamMembers = async (req, res) => {
     try {
         const teamId = req?.user?.id || req?.body?.teamId;
-        console.log(teamId);
+        // console.log(teamId);
         // Fetch all users and populate related fields
         const team = await Team.findById(teamId)
         .populate('members tasks').exec();
 
-        console.log(team)
+        // console.log(team)
 
         
         // Check if users exist

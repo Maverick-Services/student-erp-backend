@@ -1,5 +1,8 @@
 # Environment variables
 .env
 
+# API Documentation File
+API Documentation.docx
+
 # Dependencies
 node_modules/

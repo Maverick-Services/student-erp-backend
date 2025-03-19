@@ -21,6 +21,10 @@ const teamSchema = new mongoose.Schema({
          type: mongoose.Schema.Types.ObjectId,
           ref: 'User'
          }], // Array of User IDs
+    memberHistory: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'MemberHistory'
+    }],
     tasks: [{
          type: mongoose.Schema.Types.ObjectId,
           ref: 'Task'
